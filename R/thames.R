@@ -34,6 +34,9 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
   # dimension of parameter space
   if(is.null(d)){
     d <- dim(params)[2]
+    if(is.null(d)){
+      d <- 1
+    }
   }
 
   # radius of A
@@ -43,7 +46,11 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
 
   # number of posterior samples
   if(is.null(n_samples)){
-    n_samples <- dim(params)[1]
+    if(d==1){
+      n_samples <- length(params)
+    }else{
+      n_samples <- dim(params)[1]
+    }
   }
 
   # calculate unnormalized log posterior values
@@ -58,37 +65,59 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
   # split the sample
   n1 <- n_samples %/% 2
   n2 <- n_samples - n1
-  params1 <- params[1:n1,]
-  params2 <- params[(n1+1):n_samples,]
+  if(d==1){
+    params1 <- params[1:n1]
+    params2 <- params[(n1+1):n_samples]
+  }else{
+    params1 <- params[1:n1,]
+    params2 <- params[(n1+1):n_samples,]
+  }
   lps1 <- lps[1:n1]
   lps2 <- lps[(n1+1):n_samples]
 
-  # calculate posterior mean and covariance from first half of sample
-  theta_hat <- colMeans(params1)
-  sigma_hat <- cov(params1)
+  # calculate posterior mode and covariance from first half of sample
+  if(d==1){
+    theta_hat <- params1[which.max(lps1)]
+    sigma_hat <- var(params1)
 
-  # calculate SVD of sigma_hat
-  sigma_svd = svd(sigma_hat)
+    log_det_sigma_hat <- log(sigma_hat)
 
-  # calculate log(det(sigma_hat))
-  log_det_sigma_hat = sum(log(sigma_svd$d))
+    # which samples are in A?
+    inA <- sapply(params2,function(theta){
+      # calculate distance from theta_hat
+      theta_tilde <- (theta-theta_hat)/sqrt(sigma_hat)
+
+      # is distance of theta less than the radius?
+      return(sum(theta_tilde^2) < radius^2)
+    })
+  }else{
+    theta_hat <- params1[which.max(lps1),]
+    sigma_hat <- cov(params1)
+
+    # calculate SVD of sigma_hat
+    sigma_svd = svd(sigma_hat)
+
+    # calculate log(det(sigma_hat))
+    log_det_sigma_hat = sum(log(sigma_svd$d))
+
+    # which samples are in A?
+    inA <- apply(params2,1,function(theta){
+      # calculate distance from theta_hat
+      theta_tilde <-  sigma_svd$d^(-1/2) * (t(sigma_svd$v) %*% (theta-theta_hat))
+
+      # is distance of theta less than the radius?
+      return(sum(theta_tilde^2) < radius^2)
+    })
+  }
 
   # log volume of A
   logvolA = d*log(radius)+(d/2)*log(pi)+log_det_sigma_hat/2-lgamma(d/2+1)
-
-  # which samples are in A?
-  inA <- apply(params2,1,function(theta){
-    # calculate distance from theta_hat
-    theta_tilde <-  sigma_svd$d^(-1/2) * (t(sigma_svd$v) %*% (theta-theta_hat))
-
-    # is distance of theta less than the radius?
-    return(sum(theta_tilde^2) < radius^2)
-  })
 
   # calculate log(zhat_inv)
   log_zhat_inv  = log(mean(exp(-(lps2-max(lps2)))*inA))-logvolA-max(lps2)
 
   # calculate bounded parameter correction (if necessary)
+  r_bound <- 1
   if(!is.null(bound)){
     r_bound <- bound_par_cor(theta_hat, sigma_svd, bound, radius, n_simuls)
     log_zhat_inv <- log_zhat_inv - log(r_bound)
@@ -113,7 +142,6 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
               log_zhat_inv_U = log_zhat_inv_U,
               theta_hat = theta_hat,
               sigma_hat = sigma_hat,
-              sigma_svd = sigma_svd,
               log_det_sigma_hat = log_det_sigma_hat,
               logvolA = logvolA, inA = inA, r_bound = r_bound,
               se = standard_error, phi = phi, lp_ar = lp_ar,
@@ -122,3 +150,4 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
               bound = bound, n_simuls = n_simuls
   ))
 }
+
