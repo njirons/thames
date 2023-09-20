@@ -19,6 +19,16 @@
 #' @return Returns a named list with the following elements:
 #'
 #' @examples
+#' mu_star = 1
+#' n <- 50
+#' Y = rnorm(n, mu_star, 1)
+#' sig2 <- 1
+#' sig2_n <- 1/(n+1/sig2)
+#' mn <- sum(Y)/(n + 1/sig2)
+#' params <- rnorm(20, mean=mn,  (sig2_n))
+#' lps <-  sapply(params, function(i){
+#' sum(dnorm(Y,i,1,log = TRUE)) + dnorm(i,0,sig2, log = TRUE)})
+#' thames(lps, params)
 #'
 #' @seealso
 #'
