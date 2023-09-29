@@ -87,7 +87,8 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
 
   # calculate posterior mode and covariance from first half of sample
   if(d==1){
-    theta_hat <- params1[which.max(lps1)]
+    # theta_hat <- params1[which.max(lps1)]
+    theta_hat <- mean(params1)
     sigma_hat <- var(params1)
 
     log_det_sigma_hat <- log(sigma_hat)
@@ -101,7 +102,8 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
       return(sum(theta_tilde^2) < radius^2)
     })
   }else{
-    theta_hat <- params1[which.max(lps1),]
+    # theta_hat <- params1[which.max(lps1),]
+    theta_hat <- colMeans(params1)
     sigma_hat <- cov(params1)
 
     # calculate SVD of sigma_hat
