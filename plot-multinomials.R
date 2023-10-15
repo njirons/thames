@@ -20,21 +20,21 @@ res_unif_nobound = as.data.frame(res_unif_nobound)
 names(res_unif_nobound) = c("Error","d")
 plot_2 = ggplot(data=res_unif_nobound,aes(x=factor(d),y=Error)) + geom_violin() +
   geom_beeswarm() + labs(y="Error",x="d") + geom_hline(yintercept = 0, linetype =2, color ="orange") +
-  ylim(-.5,.4) + theme(text=element_text(size=18))
+  theme(text=element_text(size=18))
 
 res_random_bound = cbind(t(t(c(res_random_bound))),rep(d_samples,rep(y_sims,length(d_samples))))
 res_random_bound = as.data.frame(res_random_bound)
 names(res_random_bound) = c("Error","d")
 plot_3 = ggplot(data=res_random_bound,aes(x=factor(d),y=Error)) + geom_violin() +
   geom_beeswarm() + labs(y="Error",x="d") + geom_hline(yintercept = 0, linetype =2, color ="orange") +
-  ylim(-.5,.4) + theme(text=element_text(size=18))
+  theme(text=element_text(size=18))
 
 res_random_nobound = cbind(t(t(c(res_random_nobound))),rep(d_samples,rep(y_sims,length(d_samples))))
 res_random_nobound = as.data.frame(res_random_nobound)
 names(res_random_nobound) = c("Error","d")
 plot_4 = ggplot(data=res_random_nobound,aes(x=factor(d),y=Error)) + geom_violin() +
   geom_beeswarm() + labs(y="Error",x="d") + geom_hline(yintercept = 0, linetype =2, color ="orange") +
-  ylim(-.5,.4) + theme(text=element_text(size=18))
+  theme(text=element_text(size=18))
 
 grid.arrange(plot_4, plot_3, plot_2, ncol=3)
-ggsave("plots/simple_multinomial_3_plots.pdf")
+ggsave("plots/thames-simple_multinomial_3_plots.pdf")
