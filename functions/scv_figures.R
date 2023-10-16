@@ -1,6 +1,3 @@
-library(pracma)
-library(TreeTools)  # Only need this for "LnDoubleFactorial()"
-
 # the recursive expression of f to compare with the explicit
 get_rec <- function(d,x){
   if(d%%2 == 0){
