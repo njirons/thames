@@ -73,3 +73,5 @@ colnames(Res_tot)=NULL
 save(Res_tot, file ="Res_changemu.Rdata")
 write.matrix(Res_tot,'data/gauss_multi.csv')
 
+#Note: This only give one of the three plots, since the other two correspond to cases which do not occure in practice (sigma known, no sample splitting)
+#      and are therefore also not included in the package
