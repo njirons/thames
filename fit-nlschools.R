@@ -12,6 +12,7 @@ library(bridgesampling)
 library(mvtnorm)
 library(tidyr)
 library(dplyr)
+library(thames)
 
 set.seed(2023)
 
@@ -45,9 +46,6 @@ source('functions/thames_lm.R')
 source('functions/thames_lmm_full.R')
 source('functions/thames_lmm_reduced.R')
 source('functions/nlschools_stan.R')
-source('functions/thames.R')
-source('functions/trunc_quantile.R')
-source('functions/bound_par_cor.R')
 
 # compile stan models
 lmm_full_model <- stan_model(model_code = lmm_full_stan)
@@ -61,12 +59,12 @@ standata <- list(
   n = n,
   nclass = nclass,
   nj = as.integer(nj),
-  nj_cumsum = as.integer(nj_cumsum),  
+  nj_cumsum = as.integer(nj_cumsum),
   classmeans = as.numeric(classmeans),
   ses = ses,
   lang = lang,
   mu_prec = mu_prec,
-  beta_prec = beta_prec, 
+  beta_prec = beta_prec,
   tau_rate = tau_rate,
   tau_alpha_rate = tau_alpha_rate,
   mu_hat = mu_hat,
@@ -74,7 +72,7 @@ standata <- list(
   nu_epsilon_hat = nu_epsilon_hat,
   beta_epsilon_hat = beta_epsilon_hat,
   nu_alpha_hat = nu_alpha_hat,
-  beta_alpha_hat = beta_alpha_hat 
+  beta_alpha_hat = beta_alpha_hat
 )
 
 ################################################################## fit the model
@@ -82,7 +80,7 @@ standata <- list(
 iters <- round(seq(5,5000,length.out=20)); # posterior sample sizes
 
 for(iter in iters){
-  lmm_full_fit <- sampling(lmm_full_model, 
+  lmm_full_fit <- sampling(lmm_full_model,
                            data = standata,
                            iter = 2*iter,
                            pars = c('mu','alpha',
@@ -93,7 +91,7 @@ for(iter in iters){
 }
 
 for(iter in iters){
-  lmm_reduced_fit <- sampling(lmm_reduced_model, 
+  lmm_reduced_fit <- sampling(lmm_reduced_model,
                               data = standata,
                               iter = 2*iter,
                               pars = c('mu','sigma_alpha_squared','sigma_epsilon_squared'))
@@ -102,7 +100,7 @@ for(iter in iters){
 }
 
 for(iter in iters){
-  lm_fit <- sampling(lm_model, 
+  lm_fit <- sampling(lm_model,
                      data = standata,
                      iter = 2*iter,
                      pars = c('mu','sigma_epsilon_squared'))
@@ -110,7 +108,7 @@ for(iter in iters){
   rm(lm_fit)
 }
 
-############################ compute log marginal likelihood via bridge sampling 
+############################ compute log marginal likelihood via bridge sampling
 
 # full lmm
 lml_bridge_full <- matrix(NA, nrow = length(iters), ncol = 3)
@@ -119,16 +117,16 @@ for(j in 1:length(iters)){
   load(paste0('lmm_full_fit_',4*iters[j],'.Rda'))
   lml_bridge <- bridge_sampler(lmm_full_fit,new_mod,silent = TRUE)
   lml_err <- error_measures(lml_bridge)
-  
+
   # estimate
   lml_bridge_full[j,1] <- lml_bridge$logml
-  
+
   # lower 95% bound
   lml_bridge_full[j,2] <- lml_bridge$logml + log(trunc_quantile(0.025,lml_err$cv))
-  
+
   # upper 95% bound
   lml_bridge_full[j,3] <- lml_bridge$logml + log(trunc_quantile(0.975,lml_err$cv))
-  
+
   rm(lmm_full_fit)
   rm(lml_bridge)
   rm(lml_err)
@@ -142,16 +140,16 @@ for(j in 1:length(iters)){
   load(paste0('lmm_reduced_fit_',4*iters[j],'.Rda'))
   lml_bridge <- bridge_sampler(lmm_reduced_fit,new_mod,silent = TRUE)
   lml_err <- error_measures(lml_bridge)
-  
+
   # estimate
   lml_bridge_reduced[j,1] <- lml_bridge$logml
-  
+
   # lower 95% bound
   lml_bridge_reduced[j,2] <- lml_bridge$logml + log(trunc_quantile(0.025,lml_err$cv))
-  
+
   # upper 95% bound
   lml_bridge_reduced[j,3] <- lml_bridge$logml + log(trunc_quantile(0.975,lml_err$cv))
-  
+
   rm(lmm_reduced_fit)
   rm(lml_bridge)
   rm(lml_err)
@@ -165,16 +163,16 @@ for(j in 1:length(iters)){
   load(paste0('lm_fit_',4*iters[j],'.Rda'))
   lml_bridge <- bridge_sampler(lm_fit,new_mod,silent = TRUE)
   lml_err <- error_measures(lml_bridge)
-  
+
   # estimate
   lml_bridge_lm[j,1] <- lml_bridge$logml
-  
+
   # lower 95% bound
   lml_bridge_lm[j,2] <- lml_bridge$logml + log(trunc_quantile(0.025,lml_err$cv))
-  
+
   # upper 95% bound
   lml_bridge_lm[j,3] <- lml_bridge$logml + log(trunc_quantile(0.975,lml_err$cv))
-  
+
   rm(lm_fit)
   rm(lml_bridge)
   rm(lml_err)
@@ -192,11 +190,11 @@ for(k in 1:length(iters)){
   lb <- c(rep(-Inf,nclass+1),0,0)
   ub <- rep(Inf,nclass+3)
   bound <- function(x){prod(x >= lb)*prod(x <= ub)}
-  
+
   n_samples = dim(params)[1]
   d_par = dim(params)[2]
   c_opt = sqrt(d_par+1)
-  
+
   lps <- rep(0,n_samples)
   for(j in 1:n_samples){
     lps[j] <- logpost_lmm_full(lang,sims$mu[j],mu_hat,sigma_mu_hat,
@@ -206,23 +204,23 @@ for(k in 1:length(iters)){
                                sqrt(sims$sigma_epsilon_squared[j]),
                                nu_epsilon_hat,beta_epsilon_hat)
   }
-  
+
   # estimate THAMES
   lml_thames <- thames(lps=lps,params=params,bound=bound)
-  
+
   lml_thames_full[k,1] <- -lml_thames$log_zhat_inv
-  
+
   # lower 95% bound
   lml_thames_full[k,2] <- -lml_thames$log_zhat_inv_U
-  
+
   # upper 95% bound
   lml_thames_full[k,3] <- -lml_thames$log_zhat_inv_L
-  
+
   rm(lmm_full_fit)
   rm(lml_thames)
   rm(sims)
   rm(params)
-  rm(lps)  
+  rm(lps)
 }
 write.matrix(lml_thames_full,'data/lml_thames_full.csv')
 
@@ -235,11 +233,11 @@ for(k in 1:length(iters)){
   lb <- c(-Inf,0,0)
   ub <- rep(Inf,3)
   bound <- function(x){prod(x >= lb)*prod(x <= ub)}
-  
+
   n_samples = dim(params)[1]
   d_par = dim(params)[2]
   c_opt = sqrt(d_par+1)
-  
+
   lps <- rep(0,n_samples)
   for(j in 1:n_samples){
     lps[j] <- logpost_lmm_reduced(lang,nj,nj_cumsum,nclass,
@@ -249,18 +247,18 @@ for(k in 1:length(iters)){
                                   sqrt(sims$sigma_epsilon_squared[j]),
                                   nu_epsilon_hat,beta_epsilon_hat)
   }
-  
+
   # estimate THAMES
   lml_thames <- thames(lps=lps,params=params,bound=bound)
 
   lml_thames_reduced[k,1] <- -lml_thames$log_zhat_inv
-  
+
   # lower 95% bound
   lml_thames_reduced[k,2] <- -lml_thames$log_zhat_inv_U
-  
+
   # upper 95% bound
   lml_thames_reduced[k,3] <- -lml_thames$log_zhat_inv_L
-  
+
   rm(lmm_reduced_fit)
   rm(lml_thames)
   rm(sims)
@@ -276,36 +274,36 @@ for(k in 1:length(iters)){
   sims <- extract(lm_fit)
   params <- cbind(sims$mu,sims$sigma_epsilon_squared)
   lb <- c(-Inf,0)
-  ub <- rep(Inf,2)  
+  ub <- rep(Inf,2)
   bound <- function(x){prod(x >= lb)*prod(x <= ub)}
-  
+
   n_samples = dim(params)[1]
   d_par = dim(params)[2]
   c_opt = sqrt(d_par+1)
-  
+
   lps <- rep(0,n_samples)
   for(j in 1:n_samples){
     lps[j] <- logpost_lm(lang,sims$mu[j],mu_hat,sigma_mu_hat,
                          sqrt(sims$sigma_epsilon_squared[j]),
                          nu_epsilon_hat,beta_epsilon_hat)
   }
-  
+
   # estimate THAMES
   lml_thames <- thames(lps=lps,params=params,bound=bound)
-  
+
   lml_thames_lm[k,1] <- -lml_thames$log_zhat_inv
-  
+
   # lower 95% bound
   lml_thames_lm[k,2] <- -lml_thames$log_zhat_inv_U
-  
+
   # upper 95% bound
   lml_thames_lm[k,3] <- -lml_thames$log_zhat_inv_L
-  
+
   rm(lm_fit)
   rm(lml_thames)
   rm(sims)
   rm(params)
-  rm(lps)  
+  rm(lps)
 }
 write.matrix(lml_thames_lm,'data/lml_thames_lm.csv')
 
@@ -318,21 +316,21 @@ for(j in 1:length(iters)){
   mus <- rnorm(iters[j],mu_hat,sigma_mu_hat)
   sigma_epsilon <- sqrt(invgamma::rinvgamma(iters[j],shape=nu_epsilon_hat,rate=beta_epsilon_hat))
   samps <- cbind(mus,sigma_epsilon)
-  
+
   # evaluate likelihood
   lls <- apply(samps,1,function(x){loglik_lm(lang,x[1],x[2])})
-  
+
   # monte carlo approximation of log marginal likelihood
   lml <- log(mean(exp(lls - max(lls)))) + max(lls)
   lml_mc_lm[j,1] <- lml
-  
+
   # calculate coefficient of variation
   cv <- sd(exp(lls-max(lls)))/
     (sqrt(iters[j])*mean(exp(lls-max(lls))))
-  
+
   # calculate 95% lower bound
   lml_mc_lm[j,2] <- lml + log(trunc_quantile(0.025,cv))
-  
+
   # calculate 95% upper bound
   lml_mc_lm[j,3] <- lml + log(trunc_quantile(0.975,cv))
 }
@@ -346,21 +344,21 @@ for(j in 1:length(iters)){
   sigma_alpha <- sqrt(invgamma::rinvgamma(iters[j],shape=nu_alpha_hat,rate=beta_alpha_hat))
   sigma_epsilon <- sqrt(invgamma::rinvgamma(iters[j],shape=nu_epsilon_hat,rate=beta_epsilon_hat))
   samps <- cbind(mus,sigma_alpha,sigma_epsilon)
-  
+
   # evaluate likelihood
   lls <- apply(samps,1,function(x){loglik_lmm_reduced(lang,nj,nj_cumsum,nclass,x[1],x[2],x[3])})
-  
+
   # monte carlo approximation of log marginal likelihood
   lml <- log(mean(exp(lls - max(lls)))) + max(lls)
   lml_mc_reduced[j,1] <- lml
-  
+
   # calculate coefficient of variation
   cv <- sd(exp(lls-max(lls)))/
     (sqrt(iters[j])*mean(exp(lls-max(lls))))
-  
+
   # calculate 95% lower bound
   lml_mc_reduced[j,2] <- lml + log(trunc_quantile(0.025,cv))
-  
+
   # calculate 95% upper bound
   lml_mc_reduced[j,3] <- lml + log(trunc_quantile(0.975,cv))
 }
@@ -377,21 +375,21 @@ for(j in 1:length(iters)){
   samps <- cbind(mus,sigma_alpha,sigma_epsilon)
   alphas <- t(apply(samps,1,function(x){rnorm(nclass,x[1],x[2])}))
   samps <- cbind(samps,alphas)
-  
+
   # evaluate likelihood
   lls <- apply(samps,1,function(x){loglik_lmm_full(lang,tail(x,nclass),x[3])})
-  
+
   # monte carlo approximation of log marginal likelihood
   lml <- log(mean(exp(lls - max(lls)))) + max(lls)
   lml_mc_full[j,1] <- lml
-  
+
   # calculate coefficient of variation
   cv <- sd(exp(lls-max(lls)))/
     (sqrt(iters[j])*mean(exp(lls-max(lls))))
-  
+
   # calculate 95% lower bound
   lml_mc_full[j,2] <- lml + log(trunc_quantile(0.025,cv))
-  
+
   # calculate 95% upper bound
   lml_mc_full[j,3] <- lml + log(trunc_quantile(0.975,cv))
 }

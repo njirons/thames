@@ -12,6 +12,7 @@ library(bridgesampling)
 library(mvtnorm)
 library(tidyr)
 library(dplyr)
+library(thames)
 
 lml_thames_lm <- read.csv('data/lml_thames_lm.csv',header=FALSE,sep='')
 lml_thames_reduced <- read.csv('data/lml_thames_reduced.csv',header=FALSE,sep='')
@@ -30,9 +31,9 @@ iters <- round(seq(5,5000,length.out=20)); 4*iters
 # plot for paper
 
 # set theme
-library(extrafont) 
+library(extrafont)
 my_theme <- theme_bw() +
-  theme(strip.background = element_rect(fill = "white"), 
+  theme(strip.background = element_rect(fill = "white"),
         text = element_text(face="bold", size=16),
   )
 theme_set(my_theme)
@@ -127,39 +128,39 @@ results_long <- tibble(
 library(ggpubr)
 colors <- c("THAMES" = "black", "MC" = "red", "Bridge" = "blue")
 ylim <- c(-8145,-8130)
-full_plot <- results %>% 
-  ggplot(aes(x=iters)) + 
-  geom_point(aes(y=mc_full,color='MC'),size = 3) + 
+full_plot <- results %>%
+  ggplot(aes(x=iters)) +
+  geom_point(aes(y=mc_full,color='MC'),size = 3) +
   geom_errorbar(aes(ymax=min(ylim[1],mc_full_U), ymin = max(ylim[0],mc_full_L),color='MC'))  +
-  geom_point(aes(y=bridge_full,color='Bridge'),size = 3) + 
+  geom_point(aes(y=bridge_full,color='Bridge'),size = 3) +
   geom_errorbar(aes(ymax=bridge_full_U, ymin = bridge_full_L,color='Bridge'))  +
-  geom_point(aes(y=thames_full,color='THAMES'),size = 3) + 
+  geom_point(aes(y=thames_full,color='THAMES'),size = 3) +
   geom_errorbar(aes(ymax=thames_full_U, ymin = thames_full_L,color='THAMES'))  +
   coord_cartesian(ylim=ylim) +
   labs(x="T", y = "Log marginal likelihood",
        title='Full LMM',color='Method') +
   scale_color_manual(values=colors)
 
-reduced_plot <- results %>% 
-  ggplot(aes(x=iters)) + 
-  geom_point(aes(y=mc_reduced,color='MC'),size = 3) + 
+reduced_plot <- results %>%
+  ggplot(aes(x=iters)) +
+  geom_point(aes(y=mc_reduced,color='MC'),size = 3) +
   geom_errorbar(aes(ymax=mc_reduced_U, ymin = mc_reduced_L,color='MC'))  +
-  geom_point(aes(y=bridge_reduced,color='Bridge'),size = 3) + 
+  geom_point(aes(y=bridge_reduced,color='Bridge'),size = 3) +
   geom_errorbar(aes(ymax=bridge_reduced_U, ymin = bridge_reduced_L,color='Bridge'))  +
-  geom_point(aes(y=thames_reduced,color='THAMES'),size = 3) + 
+  geom_point(aes(y=thames_reduced,color='THAMES'),size = 3) +
   geom_errorbar(aes(ymax=thames_reduced_U, ymin = thames_reduced_L,color='THAMES'))  +
   coord_cartesian(ylim=ylim) +
   labs(x="T", y = NULL,
        title='Reduced LMM',color='Method') +
   scale_color_manual(values=colors)
 
-lm_plot <- results %>% 
-  ggplot(aes(x=iters)) + 
-  geom_point(aes(y=mc_lm,color='MC'),size = 3) + 
+lm_plot <- results %>%
+  ggplot(aes(x=iters)) +
+  geom_point(aes(y=mc_lm,color='MC'),size = 3) +
   geom_errorbar(aes(ymax=mc_lm_U, ymin = mc_lm_L,color='MC'))  +
-  geom_point(aes(y=bridge_lm,color='Bridge'),size = 3) + 
+  geom_point(aes(y=bridge_lm,color='Bridge'),size = 3) +
   geom_errorbar(aes(ymax=bridge_lm_U, ymin = bridge_lm_L,color='Bridge'))  +
-  geom_point(aes(y=thames_lm,color='THAMES'),size = 3) + 
+  geom_point(aes(y=thames_lm,color='THAMES'),size = 3) +
   geom_errorbar(aes(ymax=thames_lm_U, ymin = thames_lm_L,color='THAMES'))  +
   coord_cartesian(ylim=c(-8284,-8276)) +
   labs(x="T", y = NULL,

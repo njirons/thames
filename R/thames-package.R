@@ -1,3 +1,0 @@
-#' @import uniformly
-NULL
-#> NULL
