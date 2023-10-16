@@ -71,5 +71,5 @@ Res_tot <- bind_rows(Res1,Res20,Res50,Res100) %>%
   mutate(diff = V1+V2)
 colnames(Res_tot)=NULL
 save(Res_tot, file ="Res_changemu.Rdata")
-write.matrix(Res_tot,'gauss_multi.csv')
+write.matrix(Res_tot,'data/gauss_multi.csv')
 
