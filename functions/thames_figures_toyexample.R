@@ -1,7 +1,3 @@
-library(tidyverse)
-library(EnvStats)
-library(pracma)
-
 ### Simulations for thames_open ###
 
 # Estimator in the simple gaussian case (with T=1)
