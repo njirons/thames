@@ -1,5 +1,11 @@
 library(ggplot2)
 library(ggbeeswarm)
+library(dplyr)
+
+my_theme <- theme_bw() +
+  theme(strip.background = element_rect(fill = "white"), text = element_text(face="bold", size=12),
+  )
+theme_set(my_theme)
 
 Res_tot = as.matrix(read.csv('data/gauss_multi.csv',header=FALSE,sep=''))
 colnames(Res_tot)=c("V1",   "V2",   "d",    "diff")
