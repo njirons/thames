@@ -6,9 +6,8 @@ library(tidyverse)
 library(SimDesign)
 library(bridgesampling)
 library(invgamma)
+library(thames)
 
-source("functions/thames.R")
-source("functions/trunc_quantile.R")
 source("functions/thames_zellner.R")
 
 set.seed(2023)

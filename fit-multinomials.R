@@ -3,8 +3,7 @@ library(gtools)
 library(stats)
 library(corpcor)
 library(gridExtra)
-source("functions/thames.R")
-source("functions/trunc_quantile.R")
+library(thames)
 
 d_samples = c(1,20,50,100)
 y_sims = 50

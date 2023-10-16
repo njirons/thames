@@ -3,10 +3,8 @@ library(tidyverse)
 library(future)
 library(furrr)
 library(mvtnorm)
+library(thames)
 source("functions/thames_gauss_multi.R")
-source('functions/thames.R')
-source('functions/trunc_quantile.R')
-source('functions/bound_par_cor.R')
 
 no_cores <- availableCores() - 1
 plan(multisession, workers =8)
