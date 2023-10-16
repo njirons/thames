@@ -5,6 +5,14 @@ library(ggforce)
 library(reshape2)
 library(gridExtra)
 library(latex2exp)
+library(pracma)
+library(TreeTools)  # Only need this for "LnDoubleFactorial()"
+library(EnvStats)
+library(mosaic)
+library(reshape2)
+library(latex2exp)
+library(ggforce)
+library(gridExtra)
 source("functions/scv_figures.R")
 source("functions/thames_figures_toyexample.R")
 
@@ -38,7 +46,7 @@ plot_2_b = ggplot(data = data.frame(HPD_region=data_2_b, d=(1:length(data_2_b)))
   ylim(0,1) +
   labs(x="d",y="% HPD region")
 plot_2_b + theme(text=element_text(size=12))
-ggsave("plots/section_3_2_thames_hpd_region")
+ggsave("plots/section_3_2_thames_hpd_region.pdf")
 
 ##PLOT 3: SCV(d,sqrt(d+L)) vs d for several values of L
 data_3 = data.frame(d=1:100)
@@ -60,7 +68,7 @@ plot_3 = ggplot(data_3.long, aes(d,value,colour=variable), label) +
   stat_function(fun=lower_bound,col="blue2",linetype = "dashed",alpha=1) +
   ylim(.5,17)
 plot_3 + theme(text=element_text(size=12))
-ggsave("plots/section_3_2_thames_scv_mix")
+ggsave("plots/section_3_2_thames_scv_mix.pdf")
 
 colnames(data_3)[7] = "one"
 plot_3_a = ggplot(data_3, aes(x=d,y=one)) +
@@ -110,7 +118,6 @@ sigma_n_squ = 1/(1/sigma_squ+n)
 
 log_constant_01 = sum(apply(full_data, 1,function(x) sum((x-mean(x))^2)/2))
 log_constant = log(2*pi/n)/2-n*log(2*pi)/2- log_constant_01
-#See rapport_14 "Changing the marginal of the sufficient statistic"
 
 true_sol = exp((d/2)*log(2*pi*(sigma_squ+1/n))+
                  sum(est_mu^2)/(2*(sigma_squ+1/n))-
