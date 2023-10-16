@@ -79,6 +79,7 @@ thames <- function(lps = NULL,params,n_samples = NULL,d = NULL, radius = NULL,
   if(d==1){
     theta_hat <- mean(params1)
     sigma_hat <- var(params1)
+    sigma_svd = sigma_hat # one-dimensional svd is just the variance
     
     log_det_sigma_hat <- log(sigma_hat)
     
