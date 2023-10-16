@@ -3,7 +3,7 @@ library(tidyverse)
 library(future)
 library(furrr)
 library(mvtnorm)
-source("functions/thames_gauss_multi")
+source("functions/thames_gauss_multi.R")
 
 no_cores <- availableCores() - 1
 plan(multisession, workers =8)
