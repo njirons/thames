@@ -26,18 +26,18 @@ res_systemtimes_mcest = res[,(9*length(d_samples)+1):(10*length(d_samples))]
 
 # means
 cbind(round(apply(res_mcest,2,function(x) mean(abs(x))),4),
-round(apply(res_bridge,2,function(x) mean(abs(x))),4),
-round(apply(res_thames_transformed,2,function(x) mean(abs(x))),4))
+      round(apply(res_bridge,2,function(x) mean(abs(x))),4),
+      round(apply(res_thames_transformed,2,function(x) mean(abs(x))),4))
 
 #standard deviations
 cbind(round(apply(res_mcest,2,function(x) sd(x)),4),
-round(apply(res_bridge,2,function(x) sd(x)),4),
-round(apply(res_thames_transformed,2,function(x) sd(x)),4))
+      round(apply(res_bridge,2,function(x) sd(x)),4),
+      round(apply(res_thames_transformed,2,function(x) sd(x)),4))
 
 # Calculate summary measures of systemtimes
 cbind(round(apply(res_systemtimes_mcest,2,function(x) mean(abs(x))),4),
-round(apply(res_systemtimes_bridge,2,function(x) mean(abs(x))),4),
-round(apply(res_systemtimes_thames,2,function(x) mean(abs(x))),4))
+      round(apply(res_systemtimes_bridge,2,function(x) mean(abs(x))),4),
+      round(apply(res_systemtimes_thames,2,function(x) mean(abs(x))),4))
 
 # multiplicative differences
 round(apply(res_systemtimes_bridge,2,function(x) mean(abs(x)))/apply(res_systemtimes_thames,2,function(x) mean(abs(x))))
