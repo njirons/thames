@@ -142,8 +142,8 @@ plot_4 = ggplot(data = data_4, aes(x=X1)) +
     'X3' = 'green3',
     'X4' = "brown",
     'X5' = 'purple'),labels=c(TeX("\\textbf{THAMES with c=\\sqrt{3}}"),
-                              TeX("\\textbf{THAMES with c=0.1\\sqrt{3}}"),
                               TeX("\\textbf{THAMES with c=50\\sqrt{3}}"),
+                              TeX("\\textbf{THAMES with c=0.1\\sqrt{3}}"),
                                   "Harmonic Mean Estimator")) +
   labs(y="Inverse marginal likelihood",x="T") + theme(text=element_text(size=18))
 plot_4 = plot_4 + theme(legend.position=c(.62, .77))
