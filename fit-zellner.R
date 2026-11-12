@@ -9,6 +9,7 @@ library(invgamma)
 library(thames)
 
 source("functions/thames_zellner.R")
+source("functions/trunc_quantile.R")
 
 set.seed(2023)
 

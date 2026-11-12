@@ -142,8 +142,8 @@ plot_4 = ggplot(data = data_4, aes(x=X1)) +
     'X3' = 'green3',
     'X4' = "brown",
     'X5' = 'purple'),labels=c(TeX("\\textbf{THAMES with c=\\sqrt{3}}"),
-                              TeX("\\textbf{THAMES with c=0.1\\sqrt{3}}"),
                               TeX("\\textbf{THAMES with c=50\\sqrt{3}}"),
+                              TeX("\\textbf{THAMES with c=0.1\\sqrt{3}}"),
                                   "Harmonic Mean Estimator")) +
   labs(y="Inverse marginal likelihood",x="T") + theme(text=element_text(size=18))
 plot_4 = plot_4 + theme(legend.position=c(.62, .77))
@@ -177,7 +177,7 @@ plot_4_b = plot_4_b + geom_text(data = test[highest_index_1,],
             col="red") + theme(text=element_text(size=18))
 grid.arrange(plot_4, plot_4_b, ncol=2)
 #grid.arrange(plot_4, plot_4_b, ncol=2)
-ggsave('plots/section_3_2_thames_toyexample.jpeg', grid.arrange(plot_4, plot_4_b, ncol=2), device = "jpeg",dpi=700,height=5.6,width=11.14)
+ggsave('plots/section_3_2_thames_toyexample.jpeg', grid.arrange(plot_4, plot_4_b+coord_fixed(ratio = 1), ncol=2), device = "jpeg",dpi=700,height=5.6,width=11.14)
 
 ## PLOT 5 ratio of SCV of heuristic and optimal SCV v.s. d
 data_5 = data.frame(d=1:100)

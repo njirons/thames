@@ -24,7 +24,7 @@ ggplot(data=df_1[df_1==8,],aes(x= nb_iter,y = log_lik, ymax = U, ymin = L))+
   geom_errorbar(aes(color="THAMES")) +
   geom_errorbar(data=df_1_clone[df_1==8,],aes(color="Bridge")) +
   facet_grid(nb_var~., scale ="free") +
-  labs(y = "Marginal log likelihood", x= "Number of iterations") +
+  labs(y = "Log marginal likelihood", x= "Number of iterations") +
   theme(axis.text=element_text(size=11)) +
   theme(text=element_text(size=12))+labs(color="Method")+scale_color_manual(values=colors)
 ggsave('plots/thames-zellner_thames_and_bridge.pdf')
@@ -35,7 +35,7 @@ ggplot(data=df_1,aes(x= nb_iter,y = log_lik, ymax = U, ymin = L))+
   geom_errorbar(aes(color="THAMES")) +
   geom_errorbar(data=df_1_clone,aes(color="Bridge")) + geom_errorbar(data=df_1_clone_2,aes(color="MC"))+
   facet_grid(nb_var~., scale ="free") +
-  labs(y = "Marginal log likelihood", x= "Number of iterations")+
+  labs(y = "Log marginal likelihood", x= "Number of iterations")+
   theme(axis.text=element_text(size=11)) +
   theme(text=element_text(size=12))+labs(color="Method")+scale_color_manual(values=colors)
 ggsave('plots/thames-zellner_allests.pdf')

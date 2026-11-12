@@ -13,8 +13,9 @@ library(mvtnorm)
 library(tidyr)
 library(dplyr)
 library(thames)
+source("functions/trunc_quantile.R")
 
-set.seed(2023)
+set.seed(2024)
 
 ######################################################### prepare nlschools data
 
@@ -51,8 +52,6 @@ source('functions/nlschools_stan.R')
 lmm_full_model <- stan_model(model_code = lmm_full_stan)
 lmm_reduced_model <- stan_model(model_code = lmm_reduced_stan)
 lm_model <- stan_model(model_code = lm_stan)
-lm_analytical <- stan_model(model_code = lm_stan_analytical)
-lm_analytic0 <- stan_model(model_code = lm_stan_analytic0)
 
 # define data as named list for stan
 standata <- list(
@@ -77,7 +76,7 @@ standata <- list(
 
 ################################################################## fit the model
 
-iters <- round(seq(5,5000,length.out=20)); # posterior sample sizes
+iters <- round(seq(1000,20000,length.out=20)); # posterior sample sizes
 
 for(iter in iters){
   lmm_full_fit <- sampling(lmm_full_model,
@@ -114,7 +113,7 @@ for(iter in iters){
 lml_bridge_full <- matrix(NA, nrow = length(iters), ncol = 3)
 new_mod <- stan(model_code = lmm_full_stan, data = standata, chains = 0)
 for(j in 1:length(iters)){
-  load(paste0('lmm_full_fit_',4*iters[j],'.Rda'))
+  load(paste0('data/lmm_full_fit_',4*iters[j],'.Rda'))
   lml_bridge <- bridge_sampler(lmm_full_fit,new_mod,silent = TRUE)
   lml_err <- error_measures(lml_bridge)
 
@@ -137,7 +136,7 @@ write.matrix(lml_bridge_full,'data/lml_bridge_full.csv')
 lml_bridge_reduced <- matrix(NA, nrow = length(iters), ncol = 3)
 new_mod <- stan(model_code = lmm_reduced_stan, data = standata, chains = 0)
 for(j in 1:length(iters)){
-  load(paste0('lmm_reduced_fit_',4*iters[j],'.Rda'))
+  load(paste0('data/lmm_reduced_fit_',4*iters[j],'.Rda'))
   lml_bridge <- bridge_sampler(lmm_reduced_fit,new_mod,silent = TRUE)
   lml_err <- error_measures(lml_bridge)
 
@@ -160,7 +159,7 @@ write.matrix(lml_bridge_reduced,'data/lml_bridge_reduced.csv')
 lml_bridge_lm <- matrix(NA, nrow = length(iters), ncol = 3)
 new_mod <- stan(model_code = lm_stan, data = standata, chains = 0)
 for(j in 1:length(iters)){
-  load(paste0('lm_fit_',4*iters[j],'.Rda'))
+  load(paste0('data/lm_fit_',4*iters[j],'.Rda'))
   lml_bridge <- bridge_sampler(lm_fit,new_mod,silent = TRUE)
   lml_err <- error_measures(lml_bridge)
 
@@ -184,7 +183,7 @@ write.matrix(lml_bridge_lm,'data/lml_bridge_lm.csv')
 # full lmm
 lml_thames_full <- matrix(NA, nrow = length(iters), ncol = 3)
 for(k in 1:length(iters)){
-  load(paste0('lmm_full_fit_',4*iters[k],'.Rda'))
+  load(paste0('data/lmm_full_fit_',4*iters[k],'.Rda'))
   sims <- extract(lmm_full_fit)
   params <- cbind(sims$mu,sims$alpha,sims$sigma_alpha_squared,sims$sigma_epsilon_squared)
   lb <- c(rep(-Inf,nclass+1),0,0)
@@ -227,7 +226,7 @@ write.matrix(lml_thames_full,'data/lml_thames_full.csv')
 # reduced lmm
 lml_thames_reduced <- matrix(NA, nrow = length(iters), ncol = 3)
 for(k in 1:length(iters)){
-  load(paste0('lmm_reduced_fit_',4*iters[k],'.Rda'))
+  load(paste0('data/lmm_reduced_fit_',4*iters[k],'.Rda'))
   sims <- extract(lmm_reduced_fit)
   params <- cbind(sims$mu,sims$sigma_alpha_squared,sims$sigma_epsilon_squared)
   lb <- c(-Inf,0,0)
@@ -265,12 +264,12 @@ for(k in 1:length(iters)){
   rm(params)
   rm(lps)
 }
-write.matrix(lml_thames_reduced,'data/lml_thames_reduced.csv')
+                                                                                                                                                        write.matrix(lml_thames_reduced,'data/lml_thames_reduced.csv')
 
 # lm
 lml_thames_lm <- matrix(NA, nrow = length(iters), ncol = 3)
 for(k in 1:length(iters)){
-  load(paste0('lm_fit_',4*iters[k],'.Rda'))
+  load(paste0('data/lm_fit_',4*iters[k],'.Rda'))
   sims <- extract(lm_fit)
   params <- cbind(sims$mu,sims$sigma_epsilon_squared)
   lb <- c(-Inf,0)
